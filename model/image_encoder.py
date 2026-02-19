@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 from transformers import DistilBertModel
+import torchvision.models as models
+from torchvision.models import resnet50, ResNet50_Weights
 
 
 class TextEncoder(nn.Module):
@@ -25,8 +27,7 @@ class TextEncoder(nn.Module):
         embeddings = self.projection(cls_embedding)
 
         return embeddings
-import torch
-import torch.nn as nn
+
 import torchvision.models as models
 
 
@@ -34,7 +35,7 @@ class ImageEncoder(nn.Module):
     def __init__(self, embed_dim=256, pretrained=True):
         super(ImageEncoder, self).__init__()
 
-        self.backbone = models.resnet50(pretrained=pretrained)
+        self.backbone = models.resnet50(weights=ResNet50_Weights.DEFAULT)
 
         # Remove final classification layer
         self.backbone.fc = nn.Identity()

@@ -10,23 +10,31 @@ class Flickr8kDataset(Dataset):
     def __init__(self, image_dir, caption_file, max_length=32):
         self.image_dir = image_dir
         self.max_length = max_length
-
+        
         self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
-
+        
         self.image_caption_pairs = []
+        self.image_to_indices = {}
+        self.unique_images = []
 
         with open(caption_file, "r", encoding="utf-8") as f:
-            for line in f:
+            for idx, line in enumerate(f):
                 line = line.strip()
                 if len(line) == 0:
                     continue
 
-                # Split only at the first comma
                 img_name, caption = line.split(",", 1)
                 img_path = os.path.join(self.image_dir, img_name.strip())
                 if not os.path.isfile(img_path):
                     continue  # Skip if image file doesn't exist
                 self.image_caption_pairs.append((img_name.strip(), caption.strip()))
+
+                if img_name not in self.image_to_indices:
+                    self.image_to_indices[img_name] = []
+                    self.unique_images.append(img_name)
+
+                self.image_to_indices[img_name].append(idx)
+
 
         if len(self.image_caption_pairs) == 0:
             raise FileNotFoundError(
